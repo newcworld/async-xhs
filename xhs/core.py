@@ -189,7 +189,7 @@ class XhsClient:
             method="POST", url=f"{self._host}{uri}", data=json_str.encode("utf-8")
         )
 
-    def get_note_by_id(self, note_id: str):
+    async def get_note_by_id(self, note_id: str):
         """
         :param note_id: note_id you want to fetch
         :type note_id: str
@@ -198,7 +198,7 @@ class XhsClient:
         """
         data = {"source_note_id": note_id}
         uri = "/api/sns/web/v1/feed"
-        res = self.post(uri, data)
+        res = await self.post(uri, data)
         return res["items"][0]["note_card"]
 
     def get_note_by_id_from_html(self, note_id: str):
@@ -316,15 +316,15 @@ class XhsClient:
                 img_file_name = os.path.join(new_dir_path, f"{title}{index}.png")
                 download_file(img_url, img_file_name)
 
-    def get_self_info(self):
+    async def get_self_info(self):
         uri = "/api/sns/web/v1/user/selfinfo"
         return self.get(uri)
 
-    def get_self_info2(self):
+    async def get_self_info2(self):
         uri = "/api/sns/web/v2/user/me"
         return self.get(uri)
 
-    def get_user_info(self, user_id: str):
+    async def get_user_info(self, user_id: str):
         """
         :param user_id: user_id you want fetch
         :type user_id: str
@@ -335,11 +335,11 @@ class XhsClient:
         params = {"target_user_id": user_id}
         return self.get(uri, params)
 
-    def get_home_feed_category(self):
+    async def get_home_feed_category(self):
         uri = "/api/sns/web/v1/homefeed/category"
         return self.get(uri)["categories"]
 
-    def get_home_feed(self, feed_type: FeedType):
+    async def get_home_feed(self, feed_type: FeedType):
         uri = "/api/sns/web/v1/homefeed"
         data = {
             "cursor_score": "",
@@ -353,12 +353,12 @@ class XhsClient:
         }
         return self.post(uri, data)
 
-    def get_search_suggestion(self, keyword: str):
+    async def get_search_suggestion(self, keyword: str):
         uri = "/api/sns/web/v1/sug/recommend"
         params = {"keyword": keyword}
         return [sug["text"] for sug in self.get(uri, params)["sug_items"]]
 
-    def get_note_by_keyword(
+    async def get_note_by_keyword(
         self,
         keyword: str,
         page: int = 1,
@@ -392,7 +392,7 @@ class XhsClient:
         }
         return self.post(uri, data)
 
-    def get_user_notes(self, user_id: str, cursor: str = ""):
+    async def get_user_notes(self, user_id: str, cursor: str = ""):
         """get user notes just have simple info
 
         :param user_id: user_id you want to fetch
@@ -406,7 +406,7 @@ class XhsClient:
         params = {"num": 30, "cursor": cursor, "user_id": user_id}
         return self.get(uri, params)
 
-    def get_user_all_notes(self, user_id: str, crawl_interval: int = 1):
+    async def get_user_all_notes(self, user_id: str, crawl_interval: int = 1):
         """get user all notes with more info, abnormal notes will be ignored
 
         :param user_id: user_id you want to fetch
@@ -455,7 +455,7 @@ class XhsClient:
                 time.sleep(crawl_interval)
         return result
 
-    def get_note_comments(self, note_id: str, cursor: str = ""):
+    async def get_note_comments(self, note_id: str, cursor: str = ""):
         """get note comments
 
         :param note_id: note id you want to fetch
@@ -469,7 +469,7 @@ class XhsClient:
         params = {"note_id": note_id, "cursor": cursor}
         return self.get(uri, params)
 
-    def get_note_sub_comments(
+    async def get_note_sub_comments(
         self, note_id: str, root_comment_id: str, num: int = 30, cursor: str = ""
     ):
         """get note sub comments
@@ -494,7 +494,7 @@ class XhsClient:
         }
         return self.get(uri, params)
 
-    def get_note_all_comments(self, note_id: str, crawl_interval: int = 1):
+    async def get_note_all_comments(self, note_id: str, crawl_interval: int = 1):
         """get note all comments include sub comments
 
         :param note_id: note id you want to fetch
@@ -533,7 +533,7 @@ class XhsClient:
             time.sleep(crawl_interval)
         return result
 
-    def comment_note(self, note_id: str, content: str):
+    async def comment_note(self, note_id: str, content: str):
         """comment a note
 
         :return: {"time":1680834576180,"toast":"评论已发布","comment":{"id":"id","note_id":"note_id","status":2,"liked":false,"show_tags":["is_author"],"ip_location":"ip_location","content":"content","at_users":[],"like_count":"0","user_info":{"image":"**","user_id":"user_id","nickname":"nickname"},"create_time":create_time}}
@@ -543,12 +543,12 @@ class XhsClient:
         data = {"note_id": note_id, "content": content, "at_users": []}
         return self.post(uri, data)
 
-    def delete_note_comment(self, note_id: str, comment_id: str):
+    async def delete_note_comment(self, note_id: str, comment_id: str):
         uri = "/api/sns/web/v1/comment/delete"
         data = {"note_id": note_id, "comment_id": comment_id}
         return self.post(uri, data)
 
-    def comment_user(self, note_id: str, comment_id: str, content: str):
+    async def comment_user(self, note_id: str, comment_id: str, content: str):
         """
         :return: {"comment":{"like_count":"0","user_info":{"user_id":user_id"user_id":"user_id","image":"image"},"show_tags":["is_author"],"ip_location":"ip_location","id":"id","content":"content","at_users":[],"create_time":1680847204059,"target_comment":{"id":"id","user_info":{"user_id":"user_id","nickname":"nickname","image":"image"}},"note_id":"note_id","status":2,"liked":false},"time":1680847204089,"toast":"你的回复已发布"}
         :rtype: dict
@@ -562,47 +562,47 @@ class XhsClient:
         }
         return self.post(uri, data)
 
-    def follow_user(self, user_id: str):
+    async def follow_user(self, user_id: str):
         uri = "/api/sns/web/v1/user/follow"
         data = {"target_user_id": user_id}
         return self.post(uri, data)
 
-    def unfollow_user(self, user_id: str):
+    async def unfollow_user(self, user_id: str):
         uri = "/api/sns/web/v1/user/unfollow"
         data = {"target_user_id": user_id}
         return self.post(uri, data)
 
-    def collect_note(self, note_id: str):
+    async def collect_note(self, note_id: str):
         uri = "/api/sns/web/v1/note/collect"
         data = {"note_id": note_id}
         return self.post(uri, data)
 
-    def uncollect_note(self, note_id: str):
+    async def uncollect_note(self, note_id: str):
         uri = "/api/sns/web/v1/note/uncollect"
         data = {"note_ids": note_id}
         return self.post(uri, data)
 
-    def like_note(self, note_id: str):
+    async def like_note(self, note_id: str):
         uri = "/api/sns/web/v1/note/like"
         data = {"note_oid": note_id}
         return self.post(uri, data)
 
-    def like_comment(self, note_id: str, comment_id: str):
+    async def like_comment(self, note_id: str, comment_id: str):
         uri = "/api/sns/web/v1/comment/like"
         data = {"note_id": note_id, "comment_id": comment_id}
         return self.post(uri, data)
 
-    def dislike_note(self, note_id: str):
+    async def dislike_note(self, note_id: str):
         uri = "/api/sns/web/v1/note/dislike"
         data = {"note_oid": note_id}
         return self.post(uri, data)
 
-    def dislike_comment(self, comment_id: str):
+    async def dislike_comment(self, comment_id: str):
         uri = "/api/sns/web/v1/comment/dislike"
         data = {"note_oid": comment_id}
         return self.post(uri, data)
 
-    def get_qrcode(self):
+    async def get_qrcode(self):
         """create qrcode, you can trasform response url to qrcode
 
         :return: {"qr_id":"87323168**","code":"280148","url":"xhsdiscover://**","multi_flag":0}
@@ -612,12 +612,12 @@ class XhsClient:
         data = {}
         return self.post(uri, data)
 
-    def check_qrcode(self, qr_id: str, code: str):
+    async def check_qrcode(self, qr_id: str, code: str):
         uri = "/api/sns/web/v1/login/qrcode/status"
         params = {"qr_id": qr_id, "code": code}
         return self.get(uri, params)
 
-    def activate(self):
+    async def activate(self):
         uri = "/api/sns/web/v1/login/activate"
         return self.post(uri, data={})
 
