@@ -151,7 +151,7 @@ class XhsClient:
             self.__session.headers.update({"x-s-common": signs["x-s-common"]})
         else:
             self.__session.headers.update(
-                self.sign(
+                await self.sign(
                     url,
                     data,
                     a1=self.cookie_dict.get("a1"),
@@ -318,11 +318,11 @@ class XhsClient:
 
     async def get_self_info(self):
         uri = "/api/sns/web/v1/user/selfinfo"
-        return self.get(uri)
+        return await self.get(uri)
 
     async def get_self_info2(self):
         uri = "/api/sns/web/v2/user/me"
-        return self.get(uri)
+        return await self.get(uri)
 
     async def get_user_info(self, user_id: str):
         """
@@ -333,11 +333,11 @@ class XhsClient:
         """
         uri = "/api/sns/web/v1/user/otherinfo"
         params = {"target_user_id": user_id}
-        return self.get(uri, params)
+        return await self.get(uri, params)
 
     async def get_home_feed_category(self):
         uri = "/api/sns/web/v1/homefeed/category"
-        return self.get(uri)["categories"]
+        return await self.get(uri)["categories"]
 
     async def get_home_feed(self, feed_type: FeedType):
         uri = "/api/sns/web/v1/homefeed"
@@ -351,7 +351,7 @@ class XhsClient:
             "unread_note_count": 0,
             "category": feed_type.value,
         }
-        return self.post(uri, data)
+        return await self.post(uri, data)
 
     async def get_search_suggestion(self, keyword: str):
         uri = "/api/sns/web/v1/sug/recommend"
@@ -404,7 +404,7 @@ class XhsClient:
         """
         uri = "/api/sns/web/v1/user_posted"
         params = {"num": 30, "cursor": cursor, "user_id": user_id}
-        return self.get(uri, params)
+        return await self.get(uri, params)
 
     async def get_user_all_notes(self, user_id: str, crawl_interval: int = 1):
         """get user all notes with more info, abnormal notes will be ignored
@@ -427,7 +427,7 @@ class XhsClient:
 
             for note_id in note_ids:
                 try:
-                    note = self.get_note_by_id(note_id)
+                    note = await self.get_note_by_id(note_id)
                 except DataFetchError as e:
                     if ErrorEnum.NOTE_ABNORMAL.value.code == e.error.get("code"):
                         continue
