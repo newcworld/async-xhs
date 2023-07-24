@@ -11,7 +11,7 @@ import urllib.parse
 import requests
 
 
-def sign(uri, data=None, ctime=None, a1="", b1=""):
+async def sign(uri, data=None, ctime=None, a1="", b1=""):
     """
     takes in a URI (uniform resource identifier), an optional data dictionary, and an optional ctime parameter. It returns a dictionary containing two keys: "x-s" and "x-t".
     """

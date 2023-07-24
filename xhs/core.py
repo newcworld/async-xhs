@@ -143,9 +143,9 @@ class XhsClient:
     def user_agent(self, user_agent: str):
         self.__session.headers.update({"user-agent": user_agent})
 
-    def _pre_headers(self, url: str, data=None, is_creator: bool = False):
+    async def _pre_headers(self, url: str, data=None, is_creator: bool = False):
         if is_creator:
-            signs = sign(url, data, a1=self.cookie_dict.get("a1"))
+            signs = await sign(url, data, a1=self.cookie_dict.get("a1"))
             self.__session.headers.update({"x-s": signs["x-s"]})
             self.__session.headers.update({"x-t": signs["x-t"]})
             self.__session.headers.update({"x-s-common": signs["x-s-common"]})
@@ -175,15 +175,15 @@ class XhsClient:
         else:
             raise DataFetchError(data)
 
-    def get(self, uri: str, params=None, is_creator: bool = False):
+    async def get(self, uri: str, params=None, is_creator: bool = False):
         final_uri = uri
         if isinstance(params, dict):
             final_uri = f"{uri}?" f"{'&'.join([f'{k}={v}' for k, v in params.items()])}"
-        self._pre_headers(final_uri, is_creator=is_creator)
+        await self._pre_headers(final_uri, is_creator=is_creator)
         return self.request(method="GET", url=f"{self._host}{final_uri}")
 
-    def post(self, uri: str, data: dict, is_creator: bool = False):
-        self._pre_headers(uri, data, is_creator=is_creator)
+    async def post(self, uri: str, data: dict, is_creator: bool = False):
+        await self._pre_headers(uri, data, is_creator=is_creator)
         json_str = json.dumps(data, separators=(",", ":"), ensure_ascii=False)
         return self.request(
             method="POST", url=f"{self._host}{uri}", data=json_str.encode("utf-8")
