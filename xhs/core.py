@@ -390,7 +390,7 @@ class XhsClient:
             "sort": sort.value,
             "note_type": note_type.value,
         }
-        return self.post(uri, data)
+        return await self.post(uri, data)
 
     async def get_user_notes(self, user_id: str, cursor: str = ""):
         """get user notes just have simple info
@@ -420,7 +420,7 @@ class XhsClient:
         cursor = ""
         result = []
         while has_more:
-            res = self.get_user_notes(user_id, cursor)
+            res = await self.get_user_notes(user_id, cursor)
             has_more = res["has_more"]
             cursor = res["cursor"]
             note_ids = map(lambda note: note["note_id"], res["notes"])
@@ -467,7 +467,7 @@ class XhsClient:
         """
         uri = "/api/sns/web/v2/comment/page"
         params = {"note_id": note_id, "cursor": cursor}
-        return self.get(uri, params)
+        return await self.get(uri, params)
 
     async def get_note_sub_comments(
         self, note_id: str, root_comment_id: str, num: int = 30, cursor: str = ""
@@ -504,7 +504,7 @@ class XhsClient:
         comments_has_more = True
         comments_cursor = ""
         while comments_has_more:
-            comments_res = self.get_note_comments(note_id, comments_cursor)
+            comments_res = await self.get_note_comments(note_id, comments_cursor)
             comments_has_more = comments_res.get("has_more", False)
             comments_cursor = comments_res.get("cursor", "")
             comments = comments_res["comments"]
@@ -541,12 +541,12 @@ class XhsClient:
         """
         uri = "/api/sns/web/v1/comment/post"
         data = {"note_id": note_id, "content": content, "at_users": []}
-        return self.post(uri, data)
+        return await self.post(uri, data)
 
     async def delete_note_comment(self, note_id: str, comment_id: str):
         uri = "/api/sns/web/v1/comment/delete"
         data = {"note_id": note_id, "comment_id": comment_id}
-        return self.post(uri, data)
+        return await self.post(uri, data)
 
     async def comment_user(self, note_id: str, comment_id: str, content: str):
         """
@@ -619,7 +619,7 @@ class XhsClient:
 
     async def activate(self):
         uri = "/api/sns/web/v1/login/activate"
-        return self.post(uri, data={})
+        return await self.post(uri, data={})
 
     def get_user_collect_notes(self, user_id: str, num: int = 30, cursor: str = ""):
         uri = "/api/sns/web/v2/note/collect/page"
